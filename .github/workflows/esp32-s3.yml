@@ -28,13 +28,12 @@ jobs:
         arduino-cli core install esp32:esp32
         
         # Install libraries
-        arduino-cli lib install "Preferences"
         arduino-cli lib install "ArduinoJson"
         arduino-cli lib install "NTPClient"
         git clone --depth 1 --branch 1.14.1 https://github.com/adafruit/RTClib.git ~/Arduino/libraries/RTClib
 
-        # Compile
-        arduino-cli compile --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi --output-dir firmware .
+        # Compile Firmware
+        arduino-cli compile --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi --clean --output-dir firmware .
          
     - name: Determine release tag
       id: get_tag
@@ -42,7 +41,7 @@ jobs:
         if [ "${{ github.event_name }}" == "release" ]; then
           TAG_NAME="${{ github.event.release.tag_name }}"
         else
-          TAG_NAME="firmware"
+          TAG_NAME="esp32s3"
         fi
         echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
 
