@@ -1,4 +1,4 @@
-name: ESP32 Firmware Build (lfs)
+name: ESP32 Firmware Build LFS
 
 on:
   workflow_dispatch:
@@ -6,8 +6,6 @@ on:
     branches: [main]
     paths:
       - '**.ino'
-      - '**.cpp'
-      - '**.h'
     
 jobs:
   build-and-commit:
@@ -52,7 +50,7 @@ jobs:
         arduino-cli lib install "NTPClient"
         git clone --depth 1 --branch 1.14.1 https://github.com/adafruit/RTClib.git ~/Arduino/libraries/RTClib
 
-        # Compile firmware (fresh firmware directory)
+        # Compile firmware
         arduino-cli compile --fqbn esp32:esp32:esp32 --clean --output-dir firmware .
 
     - name: Commit firmware to Git LFS
@@ -62,6 +60,12 @@ jobs:
         
         # Remove old files from git tracking
         git rm -r --cached firmware/ 2>/dev/null || true
+        
+        # Remove all files except *.merge.bin
+        find firmware/ -type f ! -name "*.merge.bin" -delete
+        
+        # Remove empty directories
+        find firmware/ -type d -empty -delete
         
         # Add all new .bin files
         find firmware/ -name "*.bin" -type f -exec git add {} \;
