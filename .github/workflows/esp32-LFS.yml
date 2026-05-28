@@ -21,18 +21,13 @@ jobs:
       run: |
         sudo apt-get install -y git-lfs
         git lfs install
-        git lfs track "firmware/**/*.bin"
+        git lfs track "firmware/**/*.merged.bin"
         git add .gitattributes
 
-    - name: Clean old firmware (keep merged.bin)
+    - name: Clean old firmware
       run: |
-        # Remove all files except *.merged.bin
-        find firmware/ -type f ! -name "*.merged.bin" -delete 2>/dev/null || true
-        
-        # Remove empty directories
-        find firmware/ -type d -empty -delete 2>/dev/null || true
-        
-        # Ensure firmware directory exists
+        # Remove all files including old .merged.bin
+        rm -rf firmware/*
         mkdir -p firmware
 
     - name: Install Arduino-cli
@@ -56,7 +51,7 @@ jobs:
         arduino-cli lib install "NTPClient"
         git clone --depth 1 --branch 1.14.1 https://github.com/adafruit/RTClib.git ~/Arduino/libraries/RTClib
 
-        # Compile firmware
+        # Compile firmware (creates new .merged.bin)
         arduino-cli compile --fqbn esp32:esp32:esp32 --clean --output-dir firmware .
 
     - name: Commit firmware to Git LFS
@@ -64,10 +59,15 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         
-        # Stage all changes (additions, modifications, deletions)
-        git add firmware/ .gitattributes
+        # Remove old .merged.bin from git tracking (if it existed)
+        git rm --cached firmware/*.merged.bin 2>/dev/null || true
+        git rm --cached firmware/**/*.merged.bin 2>/dev/null || true
         
-        # Show what will be committed
+        # Add only new .merged.bin files
+        find firmware/ -name "*.merged.bin" -type f -exec git add {} \;
+        git add .gitattributes
+        
+        # Show what will be committed (old deleted, new added)
         echo "Changes to be committed:"
         git diff --cached --name-status
         
