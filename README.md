@@ -2,5 +2,12 @@
 > ⚠️ only .ino file is supported
 1. Fork the repository
 2. Edit and paste your code inside `arduino.ino`
-3. Go to actions > build firmware > run workflows
-4. The firmware is located in the release section
+3. Go to actions > general buil > run workflows
+4. The compiled firmware is located in the release section
+
+# Custom libraries
+> Find inside `.github/workflows/general.yml`
+```
+arduino-cli lib install "ArduinoJson"
+arduino-cli lib install "NTPClient"
+```
