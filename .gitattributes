@@ -1,3 +1,0 @@
-firmware/*.bin filter=lfs diff=lfs merge=lfs -text
-firmware/**/*.bin filter=lfs diff=lfs merge=lfs -text
-firmware/**/*.merged.bin filter=lfs diff=lfs merge=lfs -text
